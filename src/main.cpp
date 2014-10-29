@@ -1116,7 +1116,7 @@ static unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool 
 
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    bool IS_POW = (pindexLast->nHeight < 14400);
+    bool IS_POW = (pindexLast->nHeight < 10000);
 
     if (IS_POW) {
         return GetNextTargetRequiredV1(pindexLast, fProofOfStake);
