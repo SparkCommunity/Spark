@@ -27,7 +27,7 @@ class CRequestTracker;
 class CNode;
 
 static const int LAST_POW_BLOCK = 14400; // ~ 10 Days
-static const int POS_START_BLOCK = 14000; // Near End of PoW
+static const int POS_START_BLOCK = 10000; // Near End of PoW
 
 
 static const unsigned int MAX_BLOCK_SIZE = 1000000;
