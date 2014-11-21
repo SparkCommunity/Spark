@@ -39,7 +39,10 @@ libzerocoin::Params* ZCParams;
 
 CBigNum bnProofOfWorkLimit(~uint256(0) >> 20); // 
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
+CBigNum bnProofOfStakeLimitNew(~uint256(0) >> 16);
 CBigNum bnProofOfWorkLimitTestNet(~uint256(0) >> 16);
+
+const int NEW_DIFFICULTY_START = 24630;
 
 unsigned int nTargetSpacing = 1 * 60; // 1 Minute
 unsigned int nStakeMinAge = 12 * 60 * 60; // Minimum 12 hours
@@ -1039,7 +1042,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64_t nTime)
 //
 unsigned int ComputeMinStake(unsigned int nBase, int64_t nTime, unsigned int nBlockTime)
 {
-    return ComputeMaxBits(bnProofOfStakeLimit, nBase, nTime);
+    return ComputeMaxBits(bnProofOfStakeLimitNew, nBase, nTime);
 }
 
 
@@ -1114,15 +1117,68 @@ static unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool 
     return bnNew.GetCompact();
 }
 
+static unsigned int GetNextTargetRequiredV3(const CBlockIndex* pindexLast, bool fProofOfStake)
+{
+	CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimitNew : bnProofOfWorkLimit;
+	int64_t currentTargetSpacing = nTargetStakeSpacing;
+
+const CBlockIndex* pindex;
+const CBlockIndex* pindexPrev;
+const CBlockIndex* pindexPrevPrev = NULL;
+
+	if (!pindexLast)
+	return bnTargetLimit.GetCompact(); // genesis block
+
+	pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
+
+	int64_t nInterval = nTargetTimespan / currentTargetSpacing;
+	int64_t count = 0;
+
+	for (pindex = pindexPrev; pindex && pindex->nHeight && count < nInterval; pindex = GetLastBlockIndex(pindex, fProofOfStake)) {
+		pindexPrevPrev = pindex;
+		pindex = pindex->pprev;
+		if (!pindex) break;
+		count++;
+		pindex = GetLastBlockIndex(pindex, fProofOfStake);
+}
+
+	if (!pindex || !pindex->nHeight)
+	count--;
+
+	if (count < 2)
+		return bnTargetLimit.GetCompact(); // not enough blocks yet
+	
+	int64_t nActualSpacing = (pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime()) / count;
+
+	if (0)
+		printf("nActualSpacing = ((block %d) %"PRId64" - (block %d) %"PRId64") / %"PRId64" = %"PRId64" / %"PRId64" = %"PRId64"\n",
+		pindexPrev->nHeight, pindexPrev->GetBlockTime(), pindexPrevPrev->nHeight, pindexPrevPrev->GetBlockTime(), count,
+		(pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime()), count,
+		nActualSpacing);
+
+	if (nActualSpacing < 0) nActualSpacing = currentTargetSpacing;
+
+// ppcoin: target change every block
+// ppcoin: retarget with exponential moving toward target spacing
+	CBigNum bnNew;
+	bnNew.SetCompact(pindexPrev->nBits);
+	bnNew *= ((count - 1) * currentTargetSpacing + 2 * nActualSpacing);
+	bnNew /= ((count + 1) * currentTargetSpacing);
+
+	if (bnNew <= 0 || bnNew > bnTargetLimit)
+	bnNew = bnTargetLimit;
+
+	return bnNew.GetCompact();
+}
+
 unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
-    bool IS_POW = (pindexLast->nHeight < 10000);
-
-    if (IS_POW) {
-        return GetNextTargetRequiredV1(pindexLast, fProofOfStake);
-    } else {
-        return GetNextTargetRequiredV2(pindexLast, fProofOfStake);
-    }
+	if (pindexLast->nHeight < 10000)
+		return GetNextTargetRequiredV1(pindexLast, fProofOfStake);
+	else if (pindexLast->nHeight < NEW_DIFFICULTY_START)
+		return GetNextTargetRequiredV2(pindexLast, fProofOfStake);
+	else
+		return GetNextTargetRequiredV3(pindexLast, fProofOfStake);
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
