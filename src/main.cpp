@@ -1120,7 +1120,7 @@ static unsigned int GetNextTargetRequiredV2(const CBlockIndex* pindexLast, bool 
 static unsigned int GetNextTargetRequiredV3(const CBlockIndex* pindexLast, bool fProofOfStake)
 {
 	CBigNum bnTargetLimit = fProofOfStake ? bnProofOfStakeLimitNew : bnProofOfWorkLimit;
-	int64_t currentTargetSpacing = nTargetStakeSpacing;
+	int64_t nActualSpacing = nTargetSpacing;
 
 const CBlockIndex* pindex;
 const CBlockIndex* pindexPrev;
@@ -1131,7 +1131,7 @@ const CBlockIndex* pindexPrevPrev = NULL;
 
 	pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
 
-	int64_t nInterval = nTargetTimespan / currentTargetSpacing;
+	int64_t nInterval = nTargetTimespan / nTargetSpacing;
 	int64_t count = 0;
 
 	for (pindex = pindexPrev; pindex && pindex->nHeight && count < nInterval; pindex = GetLastBlockIndex(pindex, fProofOfStake)) {
@@ -1148,7 +1148,7 @@ const CBlockIndex* pindexPrevPrev = NULL;
 	if (count < 2)
 		return bnTargetLimit.GetCompact(); // not enough blocks yet
 	
-	int64_t nActualSpacing = (pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime()) / count;
+	nActualSpacing = (pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime()) / count;
 
 	if (0)
 		printf("nActualSpacing = ((block %d) %"PRId64" - (block %d) %"PRId64") / %"PRId64" = %"PRId64" / %"PRId64" = %"PRId64"\n",
@@ -1156,7 +1156,7 @@ const CBlockIndex* pindexPrevPrev = NULL;
 		(pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime()), count,
 		nActualSpacing);
 
-	if (nActualSpacing < 0) nActualSpacing = currentTargetSpacing;
+	if (nActualSpacing < 0) nActualSpacing = nTargetSpacing;
 
 // ppcoin: target change every block
 // ppcoin: retarget with exponential moving toward target spacing
