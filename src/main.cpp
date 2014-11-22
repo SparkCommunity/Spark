@@ -1162,8 +1162,8 @@ const CBlockIndex* pindexPrevPrev = NULL;
 // ppcoin: retarget with exponential moving toward target spacing
 	CBigNum bnNew;
 	bnNew.SetCompact(pindexPrev->nBits);
-	bnNew *= ((count - 1) * currentTargetSpacing + 2 * nActualSpacing);
-	bnNew /= ((count + 1) * currentTargetSpacing);
+	bnNew *= ((count - 1) * nTargetSpacing + 2 * nActualSpacing);
+	bnNew /= ((count + 1) * nTargetSpacing);
 
 	if (bnNew <= 0 || bnNew > bnTargetLimit)
 	bnNew = bnTargetLimit;

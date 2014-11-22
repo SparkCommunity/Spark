@@ -1,6 +1,13 @@
 
 Spark Community! development tree
 
+New version 1.3 released 22nd Nov 2014 - addresses slow block production
+	-reduced min PoS difficulty
+	-updated difficulty adjustment formula
+	-reduced number of blocks required before moved coins can start staking again
+	-new seed node
+Diff change means a hard fork, set to take effect at block 24630
+
 Following network fork and disappearance of dev I have issued this updated wallet so everyone can get back in sync on the majority PoS chain. Changes I have made have been minor, see BTC thread at https://bitcointalk.org/index.php?topic=826767.500 for discussion, and this repo's commit history for details.
 
 The network forked after block 10041, to help ensure this wallet syncs to correct chain I have added a checkpoint for block 10042.
