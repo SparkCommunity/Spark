@@ -1,5 +1,4 @@
-
-Spark Community! development tree
+## Spark Community! development tree
 
 New version 1.3 released 22nd Nov 2014 - addresses slow block production
 
