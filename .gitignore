@@ -1,3 +1,34 @@
 libs/
-Spark-qt.pro.user
+build/
+debug/
+release/
+
+#### generic 
+
+## objects/archives
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+## qt.es
+/.qmake.cache
+/.qmake.stash
+*.moc
+moc_*.cpp
+qrc_*.cpp
+
+## creator
+*.autosave
+*.qmlproject.user
+*.qmlproject.user.*
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
 *.qm
