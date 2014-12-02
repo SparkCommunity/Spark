@@ -1,30 +1,38 @@
 TEMPLATE = app
 TARGET = Spark-qt
-VERSION = 1.0.0.0
+VERSION = 1.3.0.0
  
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 QT += core gui network
 CONFIG += thread
+CONFIG += warn_off
+CONFIG -= debug
+CONFIG += release
 CONFIG += static
+
+USE_QRCODE=1
+USE_UPNP=1
+USE_IPV6=-
 
 greaterThan(QT_MAJOR_VERSION, 4) {
         QT += widgets printsupport
         DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 }
 
-BOOST_LIB_SUFFIX=-mgw49-mt-s-1_55
+BOOST_LIB_SUFFIX=-mgw48-mt-s-1_55
 BOOST_INCLUDE_PATH=C:/deps/boost_1_55_0
 BOOST_LIB_PATH=C:/deps/boost_1_55_0/stage/lib
 BDB_INCLUDE_PATH=C:/deps/db-4.8.30.NC/build_unix
 BDB_LIB_PATH=C:/deps/db-4.8.30.NC/build_unix
-OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1i/include
-OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1i
+OPENSSL_INCLUDE_PATH=C:/deps/openssl-1.0.1j/include
+OPENSSL_LIB_PATH=C:/deps/openssl-1.0.1j
 MINIUPNPC_INCLUDE_PATH=C:/deps/miniupnpc
 MINIUPNPC_LIB_PATH=C:/deps/miniupnpc
 QRENCODE_INCLUDE_PATH=C:/deps/qrencode-3.4.4
 QRENCODE_LIB_PATH=C:/deps/qrencode-3.4.4/.libs
+
 
 OBJECTS_DIR = build
 MOC_DIR = build
@@ -52,7 +60,7 @@ QMAKE_LFLAGS *= -fstack-protector-all --param ssp-buffer-size=1
 win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat, -static
 win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 
-USE_QRCODE=1
+
 
 build_macosx64 {
     QMAKE_TARGET_BUNDLE_PREFIX = co.shadowcoin
@@ -82,9 +90,12 @@ build_macosx64 {
 contains(USE_QRCODE, 1) {
         message(Building with QRCode support)
         DEFINES += USE_QRCODE
-        windows:INCLUDEPATH += C:/deps/qrencode-3.4.3
-        windows:LIBS += -L"C:/deps/qrencode-3.4.3/.libs"
+        windows:INCLUDEPATH += C:/deps/qrencode-3.4.4
+        windows:LIBS += -L"C:/deps/qrencode-3.4.4/.libs"
         LIBS += -lqrencode
+} else {
+        message(Building without QRCode support)
+
 }
 
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
@@ -117,6 +128,7 @@ contains(USE_DBUS, 1) {
 contains(USE_IPV6, -) {
         message(Building without IPv6 support)
 } else {
+        message(Building with IPv6 support)
         count(USE_IPV6, 0) {
                 USE_IPV6=1
         }
@@ -204,7 +216,7 @@ HEADERS += \
         src/json/json_spirit_writer.h \
         src/json/json_spirit_writer_template.h \
         src/kernel.h \
-		src/scrypt.h \
+        src/scrypt.h \
         src/key.h \
         src/keystore.h \
         src/lz4/lz4.h \
@@ -267,20 +279,20 @@ HEADERS += \
         src/strlcpy.h \
         src/sync.h \
         src/txdb.h \
-		src/hashblock.h \
-		src/sph_blake.h \
-		src/sph_skein.h \
-		src/sph_keccak.h \
-		src/sph_jh.h \
-		src/sph_groestl.h \
-		src/sph_bmw.h \
-		src/sph_types.h \
-		src/sph_luffa.h \
-		src/sph_cubehash.h \
-		src/sph_echo.h \
-		src/sph_shavite.h \
-		src/sph_simd.h \
-		src/sph_types.h \
+        src/hashblock.h \
+        src/sph_blake.h \
+        src/sph_skein.h \
+        src/sph_keccak.h \
+        src/sph_jh.h \
+        src/sph_groestl.h \
+        src/sph_bmw.h \
+        src/sph_types.h \
+        src/sph_luffa.h \
+        src/sph_cubehash.h \
+        src/sph_echo.h \
+        src/sph_shavite.h \
+        src/sph_simd.h \
+        src/sph_types.h \
         src/ui_interface.h \
         src/uint256.h \
         src/util.h \
@@ -372,22 +384,22 @@ SOURCES += \
         src/rpcrawtransaction.cpp \
         src/rpcsmessage.cpp \
         src/rpcwallet.cpp \
-		src/scrypt.cpp \
+        src/scrypt.cpp \
         src/script.cpp \
         src/scrypt-arm.S \
         src/scrypt-x86.S \
         src/scrypt-x86_64.S \
-		src/blake.c \
-		src/bmw.c \
-		src/groestl.c \
-		src/jh.c \
-		src/keccak.c \
-		src/skein.c \
-		src/luffa.c \
-		src/cubehash.c \
-		src/shavite.c \
-		src/echo.c \
-		src/simd.c \
+        src/blake.c \
+        src/bmw.c \
+        src/groestl.c \
+        src/jh.c \
+        src/keccak.c \
+        src/skein.c \
+        src/luffa.c \
+        src/cubehash.c \
+        src/shavite.c \
+        src/echo.c \
+        src/simd.c \
         src/smessage.cpp \
         src/sync.cpp \
         src/util.cpp \
